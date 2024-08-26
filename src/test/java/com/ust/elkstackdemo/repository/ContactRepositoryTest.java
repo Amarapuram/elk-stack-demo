@@ -1,7 +1,15 @@
 package com.ust.elkstackdemo.repository;
 
+import com.ust.elkstackdemo.model.Contact;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
 class ContactRepositoryTest {
     /**
      * Test cases to be generated
@@ -37,5 +45,37 @@ class ContactRepositoryTest {
      *
      * 4. Ensure code coverage of the ContactRepository class is 100%.
      */
+
+    @Autowired
+    ContactRepository contactRepository;
+    Contact validContact, contactWithNullName
+            , contactWithEmptyName, contactWithNullPhoneNumber
+            , contactWithEmptyPhoneNumber, existingContact;
+
+    @BeforeEach
+    void setUp() {
+//        contactRepository = new ContactRepository(); // not needed because of @Autowired and @SpringBootTest
+        validContact = new Contact("John Doe", "john.doe", "1234567890");
+        contactWithNullName = new Contact(null, "john.doe", "1234567890");
+        contactWithEmptyName = new Contact("", "john.doe", "1234567890");
+        contactWithNullPhoneNumber = new Contact("John Doe", "john.doe", null);
+        contactWithEmptyPhoneNumber = new Contact("John Doe", "john.doe", "");
+        existingContact = new Contact("John Doe", "john.doe", "1234567890");
+    }
+
+    @Test
+    @DisplayName("Add contact with valid contact should add contact")
+    void addContact_WithValidContact_ShouldAddContact() {
+        contactRepository.addContact(validContact);
+        assertEquals(1, contactRepository.getContacts().size());
+        assertEquals(validContact, contactRepository.getContacts().get(0));
+    }
+
+    @Test
+    @DisplayName("Add contact with null name should throw exception")
+    void addContact_WithNullName_ShouldThrowException() {
+        var ex = assertThrows(IllegalArgumentException.class, () -> contactRepository.addContact(contactWithNullName));
+        assertEquals("Name is null or empty.", ex.getMessage());
+    }
 
 }
